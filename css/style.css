@@ -1,0 +1,314 @@
+/* ---------- Fonte Cooper Hewitt (auto-hospedada) ---------- */
+
+@font-face {
+  font-family: "Cooper Hewitt";
+  src: url("../assets/fontes/cooper-hewitt-400.woff2") format("woff2"),
+       url("../assets/fontes/cooper-hewitt-400.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cooper Hewitt";
+  src: url("../assets/fontes/cooper-hewitt-700.woff2") format("woff2"),
+       url("../assets/fontes/cooper-hewitt-700.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Cooper Hewitt";
+  src: url("../assets/fontes/cooper-hewitt-800.woff2") format("woff2"),
+       url("../assets/fontes/cooper-hewitt-800.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Variáveis ---------- */
+
+:root {
+  --preto: #000000;
+  --preto-suave: #141414;
+  --branco: #ffffff;
+  --cinza: #b9b9b9;
+  --dourado: #ffc017;
+  --dourado-escuro: #d9a30f;
+  --texto-sobre-dourado: #171207;
+  --foco: #ffffff;
+  --raio: 14px;
+}
+
+/* ---------- Base ---------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--preto);
+  color: var(--branco);
+  font-family: "Cooper Hewitt", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 19px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2 {
+  font-weight: 800;
+  margin: 0 0 0.4em;
+}
+
+p {
+  margin: 0 0 1em;
+  color: var(--cinza);
+}
+
+button, input, a {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 3px;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ---------- Topo ---------- */
+
+.topo {
+  text-align: center;
+  padding: 28px 20px;
+}
+
+.topo-logo {
+  display: block;
+  width: min(100%, 440px);
+  height: auto;
+  margin: 0 auto;
+}
+
+/* ---------- Conteúdo ---------- */
+
+.conteudo {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+
+.intro h2 {
+  font-size: clamp(22px, 5vw, 28px);
+}
+
+.passo {
+  background: var(--preto-suave);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--raio);
+  padding: 24px 20px;
+  margin-bottom: 24px;
+}
+
+.passo h2 {
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.passo-numero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  border-radius: 50%;
+  background: var(--dourado);
+  color: var(--texto-sobre-dourado);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* ---------- Botões ---------- */
+
+.botao {
+  display: block;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  padding: 18px 20px;
+  border-radius: var(--raio);
+  font-size: 20px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  min-height: 60px;
+  transition: transform 0.05s ease, background 0.15s ease;
+}
+
+.botao:active {
+  transform: scale(0.98);
+}
+
+.botao-principal {
+  background: var(--dourado);
+  color: var(--texto-sobre-dourado);
+}
+
+.botao-principal:hover {
+  background: var(--dourado-escuro);
+}
+
+.botao-secundario {
+  background: transparent;
+  color: var(--branco);
+  border: 2px solid #555;
+  margin-top: 18px;
+}
+
+.botao-secundario:hover {
+  border-color: var(--branco);
+}
+
+.botao-download {
+  font-size: 22px;
+}
+
+.botao-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #25d366;
+  color: #062814;
+  text-decoration: none;
+}
+
+.botao-whatsapp:hover {
+  background: #1fb959;
+}
+
+.icone-whatsapp {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+
+/* ---------- Mensagens ---------- */
+
+.mensagem-erro {
+  color: #ff6b6b;
+  background: #2a1414;
+  border: 1px solid #5c2323;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 16px 0 0;
+  font-weight: 700;
+}
+
+.mensagem-sucesso {
+  color: #7be08a;
+  background: #142a17;
+  border: 1px solid #235c2e;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 16px 0 0;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ---------- Área de recorte ---------- */
+
+.area-recorte {
+  position: relative;
+  width: min(100%, 420px);
+  aspect-ratio: 1 / 1;
+  margin: 20px auto;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #000 repeating-conic-gradient(#1a1a1a 0% 25%, #0a0a0a 0% 50%) 50% / 24px 24px;
+  border: 2px solid #333;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.area-recorte:active {
+  cursor: grabbing;
+}
+
+.foto-usuario {
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: none;
+  max-height: none;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.overlay-campanha {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---------- Controles de zoom ---------- */
+
+.controles-zoom {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.botao-zoom {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid #555;
+  background: var(--preto-suave);
+  color: var(--branco);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.botao-zoom:hover {
+  border-color: var(--branco);
+}
+
+.botao-zoom:active {
+  transform: scale(0.94);
+}
+
+.zoom-slider {
+  flex: 1 1 auto;
+  height: 44px;
+  accent-color: var(--dourado);
+  cursor: pointer;
+}
+
+/* ---------- Telas maiores ---------- */
+
+@media (min-width: 640px) {
+  body {
+    font-size: 20px;
+  }
+}

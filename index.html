@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>Moldura de perfil — Samara Martins Presidente (UP 80)</title>
+<meta name="description" content="Coloque a moldura da campanha de Samara Martins (UP 80) na sua foto de perfil. Simples, rápido e sem enviar sua foto para nenhum servidor.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="assets/favicon.ico">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topo">
+  <img class="topo-logo" src="assets/logo-campanha.png" alt="Presidente Samara, Vice Raquel — UP 80">
+</header>
+
+<main class="conteudo">
+
+  <section class="intro">
+    <h2>Monte sua foto de perfil ✊</h2>
+    <p>Coloque a moldura da campanha na sua foto e mostre pra todo mundo que você tá com a Samara! É rápido, é fácil, e sua foto não sai do seu celular ou computador.</p>
+  </section>
+
+  <section class="passo" id="passo-1" aria-labelledby="titulo-passo-1">
+    <h2 id="titulo-passo-1"><span class="passo-numero">1</span> Escolha uma foto sua</h2>
+    <p>Toque no botão abaixo e escolha uma foto da sua galeria.</p>
+    <label class="botao botao-principal" for="input-foto" id="rotulo-input-foto">
+      Escolher foto
+    </label>
+    <input type="file" id="input-foto" accept="image/*" hidden>
+    <p class="mensagem-erro" id="mensagem-erro" role="alert" hidden></p>
+  </section>
+
+  <section class="passo" id="passo-2" aria-labelledby="titulo-passo-2" hidden>
+    <h2 id="titulo-passo-2"><span class="passo-numero">2</span> Ajuste a posição da foto</h2>
+    <p>Arraste a foto com o dedo (ou o mouse) até ficar do jeito que você quiser. Os botões <strong>−</strong> e <strong>+</strong> aproximam ou afastam a imagem.</p>
+
+    <div class="area-recorte" id="area-recorte" tabindex="0" aria-label="Área de ajuste da foto. Arraste para mover.">
+      <img id="foto-usuario" class="foto-usuario" alt="" draggable="false">
+      <img id="overlay-campanha" class="overlay-campanha" src="assets/overlay.png" alt="Moldura da campanha Samara Martins UP 80" draggable="false">
+    </div>
+
+    <div class="controles-zoom">
+      <button type="button" class="botao-zoom" id="zoom-menos" aria-label="Afastar a foto">−</button>
+      <input type="range" id="zoom-slider" class="zoom-slider" min="1" max="3" step="0.001" value="1" aria-label="Aproximar ou afastar a foto">
+      <button type="button" class="botao-zoom" id="zoom-mais" aria-label="Aproximar a foto">+</button>
+    </div>
+
+    <button type="button" class="botao botao-secundario" id="btn-trocar-foto">Escolher outra foto</button>
+  </section>
+
+  <section class="passo" id="passo-3" aria-labelledby="titulo-passo-3" hidden>
+    <h2 id="titulo-passo-3"><span class="passo-numero">3</span> Baixe sua foto</h2>
+    <p>Ficou boa? Baixe a imagem e já pode usar como sua foto de perfil!</p>
+    <button type="button" class="botao botao-principal botao-download" id="btn-baixar">
+      Baixar minha foto
+    </button>
+    <p class="mensagem-sucesso" id="mensagem-sucesso" role="status" hidden>Prontinho! ✊ Já pode usar como sua foto de perfil.</p>
+  </section>
+
+  <section class="passo" id="passo-4" aria-labelledby="titulo-passo-4" hidden>
+    <h2 id="titulo-passo-4"><span class="passo-numero">4</span> Divulgue a UP!</h2>
+    <p>Mande esse site para seus amigos e ajude mais gente a fazer suas fotos de perfil.</p>
+    <a class="botao botao-whatsapp" id="link-whatsapp" href="https://wa.me/" target="_blank" rel="noopener">
+      <svg class="icone-whatsapp" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+        <path fill="currentColor" d="M12.043 21.785h-.004a9.723 9.723 0 0 1-4.965-1.36l-.356-.212-3.696.97.986-3.604-.232-.37a9.716 9.716 0 0 1-1.489-5.184c.002-5.373 4.374-9.746 9.76-9.746 2.607 0 5.055 1.017 6.897 2.862a9.692 9.692 0 0 1 2.854 6.9c-.002 5.373-4.374 9.744-9.755 9.744zm8.306-18.06A11.643 11.643 0 0 0 12.038 0C5.65 0 .457 5.196.455 11.585a11.57 11.57 0 0 0 1.548 5.803L.257 24l6.74-1.767a11.62 11.62 0 0 0 5.036 1.14h.005c6.388 0 11.583-5.198 11.585-11.586a11.518 11.518 0 0 0-3.394-8.192z"/>
+      </svg>
+      Compartilhar no WhatsApp
+    </a>
+  </section>
+
+</main>
+
+<canvas id="canvas-exportacao" hidden></canvas>
+
+<script src="js/app.js"></script>
+</body>
+</html>
