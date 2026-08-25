@@ -34,8 +34,8 @@
   --preto-suave: #141414;
   --branco: #ffffff;
   --cinza: #b9b9b9;
-  --dourado: #ffc017;
-  --dourado-escuro: #d9a30f;
+  --dourado: #fed24bff;
+  --dourado-escuro: rgb(225, 176, 29);
   --texto-sobre-dourado: #171207;
   --foco: #ffffff;
   --raio: 14px;
@@ -93,7 +93,7 @@ img {
 
 .topo-logo {
   display: block;
-  width: min(100%, 440px);
+  width: min(100%, 500px);
   height: auto;
   margin: 0 auto;
 }
@@ -238,6 +238,7 @@ img {
   border-radius: 12px;
   background: #000 repeating-conic-gradient(#1a1a1a 0% 25%, #0a0a0a 0% 50%) 50% / 24px 24px;
   border: 2px solid #333;
+  border-radius: 50%;
   touch-action: none;
   cursor: grab;
   user-select: none;
