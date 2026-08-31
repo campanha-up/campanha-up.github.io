@@ -227,6 +227,99 @@ img {
   text-align: center;
 }
 
+/* ---------- Candidatura selecionada ---------- */
+
+.candidatura-atual {
+  background: var(--preto-suave);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--raio);
+  padding: 24px 20px;
+  margin-bottom: 24px;
+}
+
+.candidatura-card {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.candidatura-info {
+  flex: 1 1 auto;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+}
+
+.candidatura-info strong {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.candidatura-info span {
+  color: var(--dourado);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.botao-trocar-candidatura {
+  width: auto;
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 12px 18px;
+  font-size: 16px;
+  margin-top: 0;
+}
+
+.seletor-candidatura {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #2a2a2a;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.seletor-candidatura[hidden] {
+  display: none;
+}
+
+.seletor-candidatura-ajuda {
+  margin: 0;
+  font-size: 15px;
+}
+
+.campo-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-select label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cinza);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.campo-select select {
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid #555;
+  background: var(--preto);
+  color: var(--branco);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.campo-select select:hover {
+  border-color: var(--branco);
+}
+
 /* ---------- Área de recorte ---------- */
 
 .area-recorte {

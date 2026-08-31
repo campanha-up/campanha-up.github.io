@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-<title>Moldura de perfil — Samara Martins Presidente (UP 80)</title>
-<meta name="description" content="Coloque a moldura da campanha de Samara Martins (UP 80) na sua foto de perfil. Simples, rápido e sem enviar sua foto para nenhum servidor.">
+<title>Filtro de perfil — Samara Martins Presidente (UP 80)</title>
+<meta name="description" content="Coloque o filtro da campanha de Samara Martins (UP 80) na sua foto de perfil. Simples, rápido e sem enviar sua foto para nenhum servidor.">
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="assets/favicon.ico">
 <link rel="stylesheet" href="css/style.css">
@@ -19,7 +19,35 @@
 
   <section class="intro">
     <h2>Monte sua foto de perfil ✊</h2>
-    <p>Coloque a moldura da campanha na sua foto e mostre pra todo mundo que você tá com a Samara! É rápido, é fácil, e sua foto não sai do seu celular ou computador.</p>
+    <p>Bora mostrar seu apoio às candidaturas revolucionárias da UP colocando um filtro na sua foto de perfil! É rápido, é fácil, e sua foto não sai do seu celular ou computador.</p>
+  </section>
+
+  <section class="candidatura-atual" aria-label="Candidatura selecionada">
+    <div class="candidatura-card">
+      <div class="candidatura-info">
+        <strong id="candidatura-nome">Samara Martins</strong>
+        <span id="candidatura-cargo">Presidente</span>
+      </div>
+      <button type="button" class="botao botao-secundario botao-trocar-candidatura" id="btn-trocar-candidatura" aria-expanded="false" aria-controls="seletor-candidatura">
+        Trocar candidatura
+      </button>
+    </div>
+
+    <div class="seletor-candidatura" id="seletor-candidatura" hidden>
+      <p class="seletor-candidatura-ajuda">Escolha o estado e o cargo pra encontrar a candidatura da Unidade Popular que você quer apoiar.</p>
+      <div class="campo-select">
+        <label for="select-estado">Estado</label>
+        <select id="select-estado"></select>
+      </div>
+      <div class="campo-select">
+        <label for="select-cargo">Cargo</label>
+        <select id="select-cargo"></select>
+      </div>
+      <div class="campo-select">
+        <label for="select-nome">Candidatura</label>
+        <select id="select-nome"></select>
+      </div>
+    </div>
   </section>
 
   <section class="passo" id="passo-1" aria-labelledby="titulo-passo-1">
@@ -38,7 +66,7 @@
 
     <div class="area-recorte" id="area-recorte" tabindex="0" aria-label="Área de ajuste da foto. Arraste para mover.">
       <img id="foto-usuario" class="foto-usuario" alt="" draggable="false">
-      <img id="overlay-campanha" class="overlay-campanha" src="assets/overlay.png" alt="Moldura da campanha Samara Martins UP 80" draggable="false">
+      <img id="overlay-campanha" class="overlay-campanha" src="assets/overlays/samara-martins.png" alt="Filtro da campanha Samara Martins UP 80" draggable="false">
     </div>
 
     <div class="controles-zoom">
@@ -75,6 +103,7 @@
 
 <canvas id="canvas-exportacao" hidden></canvas>
 
+<script src="js/candidaturas.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Redirecionando…</title>
+<script>
+  // O GitHub Pages não tem roteamento de servidor: uma URL como
+  // /samara-martins cai aqui (404). Guardamos o slug pedido e mandamos
+  // o navegador pra página principal, que lê esse valor e mostra a
+  // candidatura certa sem o usuário perceber o redirecionamento.
+  try {
+    sessionStorage.setItem("candidaturaRedirect", location.pathname.replace(/^\/+|\/+$/g, ""));
+  } catch (erro) {
+    /* ignora navegadores sem sessionStorage */
+  }
+  location.replace("/");
+</script>
+</head>
+<body></body>
+</html>

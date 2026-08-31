@@ -1,0 +1,12 @@
+{
+  "name": "moldura-perfil-samara-up80",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Site estático para aplicar a moldura da campanha Samara UP 80 sobre uma foto de perfil.",
+  "scripts": {
+    "start": "live-server --port=5500 --entry-file=index.html"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
