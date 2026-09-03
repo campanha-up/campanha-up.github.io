@@ -36,14 +36,18 @@ fn carregar_svg_como_pixmap(caminho: &std::path::Path, tamanho: u32) -> Pixmap {
 struct Config {
     tamanho: f32,
     centro: (f32, f32),
-    raio_arco: f32,
-    altura_texto_maxima: f32,
-    angulo_maximo_graus: f32,
+    // Geometria do arco de texto (nome/cargo): dois circulos concentricos
+    // (raio_maior_arco por fora, raio_menor_arco por dentro) e um setor de
+    // angulo_arco graus. O texto gruda no topo do circulo MAIOR e cresce
+    // pra dentro (em direcao ao centro) o quanto der, ate encostar no
+    // circulo menor ou nas laterais do setor — o que vier primeiro.
+    raio_maior_arco: f32,
+    raio_menor_arco: f32,
+    angulo_arco: f32,
     espessura_contorno: f32,
     espessura_sombra: f32,
     passos_extrusao_sombra: i32,
     rastrejo_extra: f32,
-    margem_seguranca: f32,
     // Kerning especifico pro texto do arco (nome/cargo): letras nesta lista
     // (ex: "TY") aproximam-se um pouco mais de qualquer letra vizinha, pra
     // compensar o vao visual que T e Y deixam (topo largo, haste fina).
@@ -190,10 +194,14 @@ struct TransformaGlifo {
 }
 
 impl TransformaGlifo {
-    fn nova(theta: f32, escala: f32, largura_glifo_px: f32, deslocamento_extra: f32) -> Self {
+    // raio_base e o raio onde a base (baseline) do glifo se apoia — pro
+    // texto do arco, isso e cfg().raio_maior_arco - altura_texto (ver
+    // montar_pixmap), ja que o texto gruda pelo TOPO no circulo maior e
+    // cresce pra dentro.
+    fn nova(theta: f32, escala: f32, largura_glifo_px: f32, deslocamento_extra: f32, raio_base: f32) -> Self {
         let cos_t = theta.cos();
         let sin_t = theta.sin();
-        let raio_efetivo = cfg().raio_arco - deslocamento_extra;
+        let raio_efetivo = raio_base - deslocamento_extra;
         let meia_largura = largura_glifo_px / 2.0;
         let origem_x = cfg().centro.0 + raio_efetivo * sin_t - meia_largura * cos_t;
         let origem_y = cfg().centro.1 - raio_efetivo * cos_t - meia_largura * sin_t;
@@ -332,47 +340,47 @@ fn layout(fonte: &Fonte, texto: &str, altura_texto: f32) -> Vec<ItemLayout> {
         }
     }
 
-    let angulo_total: f32 = fatias.iter().sum::<f32>() / cfg().raio_arco;
+    // O texto gruda pelo topo no circulo MAIOR e cresce pra dentro — a
+    // base (baseline) das letras fica no raio_maior_arco - altura_texto,
+    // nao num raio fixo.
+    let raio_base = cfg().raio_maior_arco - altura_texto;
+    let angulo_total: f32 = fatias.iter().sum::<f32>() / raio_base;
 
     let mut itens = Vec::with_capacity(chars.len());
     let mut cum = -angulo_total / 2.0;
     for (i, &ch) in chars.iter().enumerate() {
         let largura_glifo = larguras[i];
-        let theta_centro = cum + (largura_glifo / 2.0) / cfg().raio_arco;
+        let theta_centro = cum + (largura_glifo / 2.0) / raio_base;
         itens.push(ItemLayout { ch, theta: theta_centro, escala, largura_glifo });
-        cum += fatias[i] / cfg().raio_arco;
+        cum += fatias[i] / raio_base;
     }
     itens
 }
 
+// Cabe se: (1) a base do texto nao passar do circulo menor, e (2) o
+// angulo total ocupado nao passar de angulo_arco.
 fn cabe(fonte: &Fonte, texto: &str, altura_texto: f32) -> bool {
-    let itens = layout(fonte, texto, altura_texto);
-    let thetas_abs: Vec<f32> = itens.iter().filter(|i| i.ch != ' ').map(|i| i.theta.abs()).collect();
-    if thetas_abs.is_empty() {
-        return true;
-    }
-    let theta_min_abs = thetas_abs.iter().cloned().fold(f32::INFINITY, f32::min);
-    let theta_max_abs = thetas_abs.iter().cloned().fold(f32::NEG_INFINITY, f32::max);
-
-    if 2.0 * theta_max_abs > cfg().angulo_maximo_graus.to_radians() {
+    if cfg().raio_maior_arco - altura_texto < cfg().raio_menor_arco {
         return false;
     }
 
-    let raio_necessario = cfg().raio_arco + altura_texto + cfg().espessura_contorno + cfg().margem_seguranca;
-    let margem_vertical = cfg().centro.1;
-    let margem_horizontal = cfg().centro.0.min(cfg().tamanho - cfg().centro.0);
+    let itens = layout(fonte, texto, altura_texto);
+    let theta_max_abs = itens
+        .iter()
+        .filter(|i| i.ch != ' ')
+        .map(|i| i.theta.abs())
+        .fold(0.0f32, f32::max);
 
-    let topo_ok = raio_necessario * theta_min_abs.cos() <= margem_vertical;
-    let lateral_ok = raio_necessario * theta_max_abs.sin() <= margem_horizontal;
-    topo_ok && lateral_ok
+    2.0 * theta_max_abs <= cfg().angulo_arco.to_radians()
 }
 
 fn altura_ajustada(fonte: &Fonte, texto: &str) -> f32 {
-    if cabe(fonte, texto, cfg().altura_texto_maxima) {
-        return cfg().altura_texto_maxima;
+    let altura_maxima = cfg().raio_maior_arco - cfg().raio_menor_arco;
+    if cabe(fonte, texto, altura_maxima) {
+        return altura_maxima;
     }
     let mut baixo = 0.0f32;
-    let mut alto = cfg().altura_texto_maxima;
+    let mut alto = altura_maxima;
     for _ in 0..40 {
         let meio = (baixo + alto) / 2.0;
         if cabe(fonte, texto, meio) {
@@ -426,6 +434,8 @@ fn montar_pixmap(fonte: &Fonte, nome: &str, cargo: &str, nome_primeiro: bool, de
 
     let altura_texto = altura_ajustada(fonte, &texto);
     let itens = layout(fonte, &texto, altura_texto);
+    // texto gruda pelo topo no circulo maior — a base das letras fica aqui.
+    let raio_base = cfg().raio_maior_arco - altura_texto;
 
     let mut pb_sombra = PathBuilder::new();
     let mut pb_nome = PathBuilder::new();
@@ -437,7 +447,7 @@ fn montar_pixmap(fonte: &Fonte, nome: &str, cargo: &str, nome_primeiro: bool, de
         }
         let no_primeiro_bloco = indice < tamanho_primeiro_bloco;
         let eh_nome = no_primeiro_bloco == primeiro_bloco_e_nome;
-        let xf_normal = TransformaGlifo::nova(item.theta, item.escala, item.largura_glifo, 0.0);
+        let xf_normal = TransformaGlifo::nova(item.theta, item.escala, item.largura_glifo, 0.0, raio_base);
         if let Some(p) = fonte.path_glifo(item.ch, &xf_normal) {
             if eh_nome {
                 pb_nome.push_path(&p);
@@ -448,7 +458,7 @@ fn montar_pixmap(fonte: &Fonte, nome: &str, cargo: &str, nome_primeiro: bool, de
 
         for passo in 1..=cfg().passos_extrusao_sombra {
             let deslocamento = cfg().espessura_sombra * passo as f32 / cfg().passos_extrusao_sombra as f32;
-            let xf_sombra = TransformaGlifo::nova(item.theta, item.escala, item.largura_glifo, deslocamento);
+            let xf_sombra = TransformaGlifo::nova(item.theta, item.escala, item.largura_glifo, deslocamento, raio_base);
             if let Some(p) = fonte.path_glifo(item.ch, &xf_sombra) {
                 pb_sombra.push_path(&p);
             }
@@ -495,31 +505,36 @@ fn montar_pixmap(fonte: &Fonte, nome: &str, cargo: &str, nome_primeiro: bool, de
     pixmap
 }
 
-// Overlay de debug: circulo do raio do arco, cruz no centro, uma linha
-// pontilhada do centro ate a ancora de cada letra, e um rotulo com os
-// numeros — pra visualizar a geometria por tras do layout.
+// Overlay de debug: os dois circulos do arco (maior/menor), cruz no
+// centro, uma linha pontilhada do centro ate a ancora de cada letra, e um
+// rotulo com os numeros — pra visualizar a geometria por tras do layout.
 fn desenhar_debug(fonte: &Fonte, pixmap: &mut Pixmap, itens: &[ItemLayout], altura_texto: f32) {
     let thetas_abs: Vec<f32> = itens.iter().filter(|i| i.ch != ' ').map(|i| i.theta.abs()).collect();
     let theta_max_abs = thetas_abs.iter().cloned().fold(0.0f32, f32::max);
     let angulo_total_deg = 2.0 * theta_max_abs.to_degrees();
+    let raio_base = cfg().raio_maior_arco - altura_texto;
 
     let vermelho = (0xff, 0x00, 0x55);
+    let laranja = (0xff, 0x88, 0x00);
     let verde = (0x00, 0xcc, 0x44);
     let azul = (0x00, 0xaa, 0xff);
 
-    // circulo tracejado no raio do arco + ponto central
-    let mut pb = PathBuilder::new();
-    pb.push_circle(cfg().centro.0, cfg().centro.1, cfg().raio_arco);
-    if let Some(caminho) = pb.finish() {
-        let mut paint = Paint::default();
-        paint.set_color_rgba8(vermelho.0, vermelho.1, vermelho.2, 255);
-        paint.anti_alias = true;
-        let stroke = Stroke {
-            width: 2.0,
-            dash: StrokeDash::new(vec![8.0, 6.0], 0.0),
-            ..Default::default()
-        };
-        pixmap.stroke_path(&caminho, &paint, &stroke, SkTransform::identity(), None);
+    // circulos tracejados dos raios maior (vermelho) e menor (laranja) +
+    // ponto central
+    for (raio, cor) in [(cfg().raio_maior_arco, vermelho), (cfg().raio_menor_arco, laranja)] {
+        let mut pb = PathBuilder::new();
+        pb.push_circle(cfg().centro.0, cfg().centro.1, raio);
+        if let Some(caminho) = pb.finish() {
+            let mut paint = Paint::default();
+            paint.set_color_rgba8(cor.0, cor.1, cor.2, 255);
+            paint.anti_alias = true;
+            let stroke = Stroke {
+                width: 2.0,
+                dash: StrokeDash::new(vec![8.0, 6.0], 0.0),
+                ..Default::default()
+            };
+            pixmap.stroke_path(&caminho, &paint, &stroke, SkTransform::identity(), None);
+        }
     }
     let mut pb = PathBuilder::new();
     pb.push_circle(cfg().centro.0, cfg().centro.1, 4.0);
@@ -548,8 +563,8 @@ fn desenhar_debug(fonte: &Fonte, pixmap: &mut Pixmap, itens: &[ItemLayout], altu
     let mut pb_linhas = PathBuilder::new();
     let mut pb_pontos = PathBuilder::new();
     for item in itens.iter().filter(|i| i.ch != ' ') {
-        let ax = cfg().centro.0 + cfg().raio_arco * item.theta.sin();
-        let ay = cfg().centro.1 - cfg().raio_arco * item.theta.cos();
+        let ax = cfg().centro.0 + raio_base * item.theta.sin();
+        let ay = cfg().centro.1 - raio_base * item.theta.cos();
         pb_linhas.move_to(cfg().centro.0, cfg().centro.1);
         pb_linhas.line_to(ax, ay);
         pb_pontos.push_circle(ax, ay, 4.0);
@@ -574,8 +589,13 @@ fn desenhar_debug(fonte: &Fonte, pixmap: &mut Pixmap, itens: &[ItemLayout], altu
 
     // rotulo com os numeros, escrito reto no canto inferior esquerdo
     let rotulo = format!(
-        "raio={:.0}px altura={:.1}px (max {:.0}px) arco_total={:.1}graus",
-        cfg().raio_arco, altura_texto, cfg().altura_texto_maxima, angulo_total_deg
+        "raio_maior={:.0}px raio_menor={:.0}px raio_base={:.0}px altura={:.1}px (max {:.0}px) arco_total={:.1}graus",
+        cfg().raio_maior_arco,
+        cfg().raio_menor_arco,
+        raio_base,
+        altura_texto,
+        cfg().raio_maior_arco - cfg().raio_menor_arco,
+        angulo_total_deg
     );
     if let Some(caminho) = path_texto_reto(fonte, &rotulo, 16.0, cfg().tamanho - 16.0, 18.0) {
         let mut paint = Paint::default();
@@ -629,9 +649,9 @@ fn largura_numero(fonte: &Fonte, digitos: &str, altura: f32) -> f32 {
 // So um AVISO (nao corrige nada sozinho) se o valor manual configurado
 // fizer o numero passar da borda do circulo — o retangulo do numero
 // (largura x altura, base em y_base) tem que caber inteiro dentro do
-// raio efetivo (cfg().raio_arco menos a metade do contorno).
+// raio efetivo (cfg().raio_maior_arco menos a metade do contorno).
 fn avisar_se_vazar_circulo(cargo: &str, digitos: &str, largura_total: f32, altura: f32, y_base: f32) {
-    let r_efetivo = cfg().raio_arco - cfg().espessura_contorno_numero;
+    let r_efetivo = cfg().raio_maior_arco - cfg().espessura_contorno_numero;
     let cantos = [
         (cfg().centro.0 - largura_total / 2.0, y_base),
         (cfg().centro.0 + largura_total / 2.0, y_base),

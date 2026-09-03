@@ -1,15 +1,15 @@
 {
   "tamanho": 800.0,
   "centro": [400.0, 400.0],
-  "raio_arco": 320.0,
 
-  "altura_texto_maxima": 110.0,
-  "angulo_maximo_graus": 180.0,
+  "raio_maior_arco": 380.0,
+  "raio_menor_arco": 320.0,
+  "angulo_arco": 180.0,
+
   "espessura_contorno": 7.0,
   "espessura_sombra": 14.0,
   "passos_extrusao_sombra": 10,
   "rastrejo_extra": 0.03,
-  "margem_seguranca": 8.0,
   "letras_kerning_estreito": "TY",
   "kerning_estreito": 0.06,
 
