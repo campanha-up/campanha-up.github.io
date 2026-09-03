@@ -205,7 +205,7 @@
     if (candidaturaFotoEl) {
       candidaturaFotoEl.hidden = true;
       candidaturaFotoEl.alt = "Foto de perfil de " + candidatura.nome;
-      candidaturaFotoEl.src = "assets/instagram/" + candidatura.slug + ".jpg";
+      candidaturaFotoEl.src = "assets/fotos/" + candidatura.slug + ".jpg";
     }
 
     candidaturaNomeEl.textContent = candidatura.nome;
