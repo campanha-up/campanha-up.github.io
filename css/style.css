@@ -96,6 +96,8 @@ img {
   width: min(100%, 500px);
   height: auto;
   margin: 0 auto;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* ---------- Conteúdo ---------- */
