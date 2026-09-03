@@ -1,0 +1,30 @@
+{
+  "tamanho": 800.0,
+  "centro": [400.0, 400.0],
+  "raio_arco": 320.0,
+
+  "altura_texto_maxima": 110.0,
+  "angulo_maximo_graus": 180.0,
+  "espessura_contorno": 7.0,
+  "espessura_sombra": 14.0,
+  "passos_extrusao_sombra": 10,
+  "rastrejo_extra": 0.03,
+  "margem_seguranca": 16.0,
+
+  "cor_nome": [254, 210, 75],
+  "cor_cargo": [255, 255, 255],
+
+  "altura_numero_senador": 200.0,
+  "altura_numero_dep_federal": 182.0,
+  "altura_numero_dep_estadual": 166.0,
+
+  "y_base_numero_senador": 740.0,
+  "y_base_numero_dep_federal": 712.4,
+  "y_base_numero_dep_estadual": 690.0,
+
+  "espessura_contorno_numero": 22.0,
+  "espessura_negrito_numero": 7.0,
+  "rastrejo_numero": 0.07,
+
+  "cargos_com_numero_padrao": ["presidente", "governador"]
+}
