@@ -104,7 +104,7 @@
     { slug: "larissa-moura", nome: "Larissa Moura", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "GO", estado: "Goiás", genero: "f", nomeArco: "Larissa", numero: "80180" },
     { slug: "prof-pedro-augusto", nome: "Prof. Pedro Augusto", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "GO", estado: "Goiás", genero: "m", nomeArco: "Prof. Pedro Augusto", numero: "80000" },
     { slug: "daniel-tito", nome: "Daniel Tito", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "MG", estado: "Minas Gerais", genero: "m", nomeArco: "Daniel", numero: "80123" },
-    { slug: "candidatura-coletiva-contra-mineracao", nome: "Iris Raquel Contra a Mineração", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "MG", estado: "Minas Gerais", genero: "f", nomeArco: "Iris Raquel Contra a Mineração", cargoArco: "", numero: "80000" },
+    { slug: "candidatura-coletiva-contra-mineracao", nome: "Iris Raquel Contra a Mineração", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "MG", estado: "Minas Gerais", genero: "f", nomeArco: "Contra a Mineração", cargoArco: "Coletivo", numero: "80000" },
     { slug: "marcos-jobson", nome: "Marcos Jobson", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "PA", estado: "Pará", genero: "m", nomeArco: "Marcos", numero: "80000" },
     { slug: "maria-santos", nome: "Maria Santos", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "PA", estado: "Pará", genero: "f", nomeArco: "Maria", numero: "80180" },
     { slug: "jozivan-antero", nome: "Jozivan Antero", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "PB", estado: "Paraíba", genero: "m", nomeArco: "Jozivan", numero: "80123" },
