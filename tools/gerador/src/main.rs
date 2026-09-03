@@ -44,6 +44,11 @@ struct Config {
     passos_extrusao_sombra: i32,
     rastrejo_extra: f32,
     margem_seguranca: f32,
+    // Kerning especifico pro texto do arco (nome/cargo): letras nesta lista
+    // (ex: "TY") aproximam-se um pouco mais de qualquer letra vizinha, pra
+    // compensar o vao visual que T e Y deixam (topo largo, haste fina).
+    letras_kerning_estreito: String,
+    kerning_estreito: f32,
     cor_nome: (u8, u8, u8),
     cor_cargo: (u8, u8, u8),
     altura_numero_senador: f32,
@@ -145,6 +150,21 @@ impl<'a> Fonte<'a> {
         self.face.outline_glyph(gid, &mut builder)?;
         builder.pb.finish()
     }
+
+    // Igual ao path_glifo, mas devolve cada sub-forma (contorno externo do
+    // glifo + cada "buraco"/contra-forma, ex: os dois furos do "8") como um
+    // path FECHADO separado, em vez de tudo grudado num Path so. Usado pra
+    // poder identificar e preencher furos pequenos direto (ver
+    // desenhar_numero) sem depender do stroke_path, que tem um bug de
+    // auto-intersecao (deixa um "buraquinho" sem tinta) quando a espessura
+    // do contorno e maior que o raio de curvatura do furo.
+    fn contornos_glifo<T: Transformador>(&self, ch: char, xf: &T) -> Vec<SkPath> {
+        let Some(gid) = self.glifo(ch) else { return Vec::new() };
+        let mut builder = ColetorContornos::novo(xf);
+        self.face.outline_glyph(gid, &mut builder);
+        builder.fechar_atual();
+        builder.contornos
+    }
 }
 
 trait Transformador {
@@ -238,6 +258,54 @@ impl<'a, T: Transformador> OutlineBuilder for ColetorTransformado<'a, T> {
     }
 }
 
+// Como o ColetorTransformado, mas fecha um Path separado a cada move_to()
+// em vez de acumular tudo num Path so — devolve os contornos (externo +
+// furos) do glifo isolados uns dos outros.
+struct ColetorContornos<'a, T: Transformador> {
+    atual: PathBuilder,
+    contornos: Vec<SkPath>,
+    xf: &'a T,
+}
+
+impl<'a, T: Transformador> ColetorContornos<'a, T> {
+    fn novo(xf: &'a T) -> Self {
+        ColetorContornos { atual: PathBuilder::new(), contornos: Vec::new(), xf }
+    }
+
+    fn fechar_atual(&mut self) {
+        let pb = std::mem::replace(&mut self.atual, PathBuilder::new());
+        if let Some(p) = pb.finish() {
+            self.contornos.push(p);
+        }
+    }
+}
+
+impl<'a, T: Transformador> OutlineBuilder for ColetorContornos<'a, T> {
+    fn move_to(&mut self, x: f32, y: f32) {
+        self.fechar_atual();
+        let (wx, wy) = self.xf.aplicar(x, y);
+        self.atual.move_to(wx, wy);
+    }
+    fn line_to(&mut self, x: f32, y: f32) {
+        let (wx, wy) = self.xf.aplicar(x, y);
+        self.atual.line_to(wx, wy);
+    }
+    fn quad_to(&mut self, x1: f32, y1: f32, x: f32, y: f32) {
+        let (wx1, wy1) = self.xf.aplicar(x1, y1);
+        let (wx, wy) = self.xf.aplicar(x, y);
+        self.atual.quad_to(wx1, wy1, wx, wy);
+    }
+    fn curve_to(&mut self, x1: f32, y1: f32, x2: f32, y2: f32, x: f32, y: f32) {
+        let (wx1, wy1) = self.xf.aplicar(x1, y1);
+        let (wx2, wy2) = self.xf.aplicar(x2, y2);
+        let (wx, wy) = self.xf.aplicar(x, y);
+        self.atual.cubic_to(wx1, wy1, wx2, wy2, wx, wy);
+    }
+    fn close(&mut self) {
+        self.atual.close();
+    }
+}
+
 // ---------- Layout no arco ----------
 
 struct ItemLayout {
@@ -249,16 +317,30 @@ struct ItemLayout {
 
 fn layout(fonte: &Fonte, texto: &str, altura_texto: f32) -> Vec<ItemLayout> {
     let escala = altura_texto / fonte.cap_height;
-    let larguras: Vec<f32> = texto.chars().map(|c| fonte.largura_avanco(c) * escala).collect();
-    let fatias: Vec<f32> = larguras.iter().map(|w| w + cfg().rastrejo_extra * altura_texto).collect();
+    let chars: Vec<char> = texto.chars().collect();
+    let larguras: Vec<f32> = chars.iter().map(|&c| fonte.largura_avanco(c) * escala).collect();
+    let mut fatias: Vec<f32> = larguras.iter().map(|w| w + cfg().rastrejo_extra * altura_texto).collect();
+
+    // Kerning especifico: qualquer par de letras vizinhas onde uma delas
+    // esta em letras_kerning_estreito (T, Y) ganha um pouco menos de
+    // espaco entre si.
+    for i in 0..chars.len().saturating_sub(1) {
+        let estreito_esq = cfg().letras_kerning_estreito.contains(chars[i]);
+        let estreito_dir = cfg().letras_kerning_estreito.contains(chars[i + 1]);
+        if estreito_esq || estreito_dir {
+            fatias[i] -= cfg().kerning_estreito * altura_texto;
+        }
+    }
+
     let angulo_total: f32 = fatias.iter().sum::<f32>() / cfg().raio_arco;
 
-    let mut itens = Vec::with_capacity(texto.chars().count());
+    let mut itens = Vec::with_capacity(chars.len());
     let mut cum = -angulo_total / 2.0;
-    for (ch, (largura_glifo, fatia)) in texto.chars().zip(larguras.iter().zip(fatias.iter())) {
+    for (i, &ch) in chars.iter().enumerate() {
+        let largura_glifo = larguras[i];
         let theta_centro = cum + (largura_glifo / 2.0) / cfg().raio_arco;
-        itens.push(ItemLayout { ch, theta: theta_centro, escala, largura_glifo: *largura_glifo });
-        cum += fatia / cfg().raio_arco;
+        itens.push(ItemLayout { ch, theta: theta_centro, escala, largura_glifo });
+        cum += fatias[i] / cfg().raio_arco;
     }
     itens
 }
@@ -580,15 +662,42 @@ fn desenhar_numero(fonte: &Fonte, pixmap: &mut Pixmap, digitos: &str, cargo: &st
     let escala = altura / fonte.cap_height;
 
     let rastrejo = cfg().rastrejo_numero * altura;
+    // Quanto o stroke do contorno alcanca pra dentro de um furo (metade da
+    // largura total do stroke) — um furo mais estreito que isso, em
+    // qualquer direcao, "deveria" fechar por completo.
+    let limiar_fechamento = cfg().espessura_negrito_numero + cfg().espessura_contorno_numero;
+
     let mut pb = PathBuilder::new();
+    let mut buracos_para_fechar: Vec<SkPath> = Vec::new();
     let mut cursor_x = cfg().centro.0 - largura_total / 2.0;
     for (i, ch) in digitos.chars().enumerate() {
         if i > 0 {
             cursor_x += rastrejo;
         }
         let xf = TransformaReta { escala, dx: cursor_x, dy: y_base };
-        if let Some(p) = fonte.path_glifo(ch, &xf) {
-            pb.push_path(&p);
+        let contornos = fonte.contornos_glifo(ch, &xf);
+        if !contornos.is_empty() {
+            // O contorno externo do glifo e o de maior area de bounding
+            // box; os demais sao furos/contra-formas (ex: os dois do "8").
+            let idx_externo = contornos
+                .iter()
+                .enumerate()
+                .max_by(|(_, a), (_, b)| {
+                    let area = |p: &SkPath| p.bounds().width() * p.bounds().height();
+                    area(a).partial_cmp(&area(b)).unwrap()
+                })
+                .map(|(idx, _)| idx)
+                .unwrap();
+
+            for (idx, contorno) in contornos.iter().enumerate() {
+                if idx != idx_externo {
+                    let b = contorno.bounds();
+                    if b.width().min(b.height()) / 2.0 <= limiar_fechamento {
+                        buracos_para_fechar.push(contorno.clone());
+                    }
+                }
+                pb.push_path(contorno);
+            }
         }
         cursor_x += fonte.largura_avanco(ch) * escala;
     }
@@ -606,6 +715,25 @@ fn desenhar_numero(fonte: &Fonte, pixmap: &mut Pixmap, digitos: &str, cargo: &st
     paint_contorno.set_color_rgba8(0, 0, 0, 255);
     paint_contorno.anti_alias = true;
     pixmap.stroke_path(&caminho, &paint_contorno, &stroke_contorno, SkTransform::identity(), None);
+
+    // 1.5) furos pequenos o bastante pra fechar (ver limiar_fechamento):
+    // preenche o contorno do furo direto em preto solido, em vez de confiar
+    // no stroke_path acima pra "engolir" ele via offset. stroke_path desloca
+    // a borda pra dentro por metade da espessura, e esse deslocamento so e
+    // valido enquanto a curva original nao for mais fechada que a distancia
+    // deslocada — nos furos do "8" (bem mais afunilados que o do "0") a
+    // curva deslocada cruza a si mesma, e o preenchimento por winding zera
+    // justo naquele cruzamento, deixando um "buraquinho" sem tinta que so
+    // cresce se aumentar a espessura. Preencher o furo direto (poligono
+    // fechado simples, sem offset) nunca tem esse problema.
+    if !buracos_para_fechar.is_empty() {
+        let mut paint_fechamento = Paint::default();
+        paint_fechamento.set_color_rgba8(0, 0, 0, 255);
+        paint_fechamento.anti_alias = true;
+        for buraco in &buracos_para_fechar {
+            pixmap.fill_path(buraco, &paint_fechamento, FillRule::Winding, SkTransform::identity(), None);
+        }
+    }
 
     // 2) negrito falso: stroke AMARELO por cima, só ate a espessura do
     // negrito — engorda o traco do digito e cobre a parte de dentro do

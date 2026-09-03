@@ -9,7 +9,9 @@
   "espessura_sombra": 14.0,
   "passos_extrusao_sombra": 10,
   "rastrejo_extra": 0.03,
-  "margem_seguranca": 16.0,
+  "margem_seguranca": 8.0,
+  "letras_kerning_estreito": "TY",
+  "kerning_estreito": 0.06,
 
   "cor_nome": [254, 210, 75],
   "cor_cargo": [255, 255, 255],
@@ -23,8 +25,8 @@
   "y_base_numero_dep_estadual": 690.0,
 
   "espessura_contorno_numero": 22.0,
-  "espessura_negrito_numero": 7.0,
-  "rastrejo_numero": 0.07,
+  "espessura_negrito_numero": 1.7,
+  "rastrejo_numero": 0.0,
 
   "cargos_com_numero_padrao": ["presidente", "governador"]
 }
