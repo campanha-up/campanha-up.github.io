@@ -120,7 +120,7 @@
     { slug: "henderson", nome: "Henderson", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "RJ", estado: "Rio de Janeiro", genero: "m", nomeArco: "Henderson", numero: "80000" },
     { slug: "monique-zuma", nome: "Monique Zuma", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "RJ", estado: "Rio de Janeiro", genero: "f", nomeArco: "Monique", numero: "80180" },
     { slug: "ruan-vidal", nome: "Ruan Vidal", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "RJ", estado: "Rio de Janeiro", genero: "m", nomeArco: "Ruan Vidal", numero: "80080" },
-    { slug: "chapa-coletiva-fnr", nome: "Chapa Coletiva FNR", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "RN", estado: "Rio Grande do Norte", genero: "coletivo", nomeArco: "Chapa Coletiva FNR", cargoArco: "", numero: "80000" },
+    { slug: "chapa-coletiva-fnr", nome: "Chapa Coletiva FNR", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "RN", estado: "Rio Grande do Norte", genero: "coletivo", nomeArco: "Frente Negra Revolucionária", cargoArco: "", numero: "80000" },
     { slug: "milenne-barbosa", nome: "Milenne Barbosa", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "RN", estado: "Rio Grande do Norte", genero: "f", nomeArco: "Milenne", numero: "80180" },
     { slug: "everaldo", nome: "Everaldo Oliveira", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "RS", estado: "Rio Grande do Sul", genero: "m", nomeArco: "Everaldo", numero: "80000" },
     { slug: "samara", nome: "Samara Garcia", cargo: "deputado-estadual", cargoRotulo: "Deputado(a) Estadual", uf: "RS", estado: "Rio Grande do Sul", genero: "f", nomeArco: "Samara", numero: "80123" },
