@@ -26,6 +26,7 @@
 
   var canvasExportacao = document.getElementById("canvas-exportacao");
 
+  var candidaturaFotoEl = document.getElementById("candidatura-foto");
   var candidaturaNomeEl = document.getElementById("candidatura-nome");
   var candidaturaCargoEl = document.getElementById("candidatura-cargo");
   var btnTrocarCandidatura = document.getElementById("btn-trocar-candidatura");
@@ -33,6 +34,15 @@
   var selectEstado = document.getElementById("select-estado");
   var selectCargo = document.getElementById("select-cargo");
   var selectNome = document.getElementById("select-nome");
+
+  if (candidaturaFotoEl) {
+    candidaturaFotoEl.addEventListener("load", function () {
+      candidaturaFotoEl.hidden = false;
+    });
+    candidaturaFotoEl.addEventListener("error", function () {
+      candidaturaFotoEl.hidden = true;
+    });
+  }
 
   // Tamanho (em pixels) da imagem final exportada. A moldura da campanha
   // deve ser um PNG quadrado transparente com esta mesma proporção 1:1.
@@ -191,6 +201,12 @@
 
     overlayCampanha.src = "assets/overlays/" + candidatura.slug + ".png";
     overlayCampanha.alt = "Filtro da campanha " + candidatura.nome + " UP 80";
+
+    if (candidaturaFotoEl) {
+      candidaturaFotoEl.hidden = true;
+      candidaturaFotoEl.alt = "Foto de perfil de " + candidatura.nome;
+      candidaturaFotoEl.src = "assets/fotos/" + candidatura.slug + ".jpg";
+    }
 
     candidaturaNomeEl.textContent = candidatura.nome;
     candidaturaCargoEl.textContent = candidatura.uf
