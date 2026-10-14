@@ -353,16 +353,49 @@
           mostrarErro("Não foi possível gerar a imagem. Tente novamente.");
           return;
         }
-        var urlDownload = URL.createObjectURL(blob);
-        var link = document.createElement("a");
-        link.href = urlDownload;
-        link.download = "foto-perfil-vote13.png";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(urlDownload);
-        mostrar(mensagemSucesso);
-        mostrar(passo4);
+
+        var nomeArquivo = "foto-perfil-vote13.png";
+
+        function baixarComoArquivo() {
+          var urlDownload = URL.createObjectURL(blob);
+          var link = document.createElement("a");
+          link.href = urlDownload;
+          link.download = nomeArquivo;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(urlDownload);
+          mostrar(mensagemSucesso);
+          mostrar(passo4);
+        }
+
+        // No celular, o compartilhamento nativo tem a opção "Salvar
+        // imagem", que vai direto pra galeria de fotos. Sem isso, o
+        // navegador só sabe baixar pra pasta de arquivos/downloads.
+        var arquivo = null;
+        try {
+          arquivo = new File([blob], nomeArquivo, { type: "image/png" });
+        } catch (erro) {
+          arquivo = null;
+        }
+
+        if (arquivo && navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+          navigator
+            .share({ files: [arquivo] })
+            .then(function () {
+              mostrar(mensagemSucesso);
+              mostrar(passo4);
+            })
+            .catch(function (erro) {
+              if (erro && erro.name === "AbortError") {
+                return;
+              }
+              baixarComoArquivo();
+            });
+          return;
+        }
+
+        baixarComoArquivo();
       }, "image/png");
     }
 
