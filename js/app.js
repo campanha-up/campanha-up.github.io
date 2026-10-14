@@ -26,24 +26,6 @@
 
   var canvasExportacao = document.getElementById("canvas-exportacao");
 
-  var candidaturaFotoEl = document.getElementById("candidatura-foto");
-  var candidaturaNomeEl = document.getElementById("candidatura-nome");
-  var candidaturaCargoEl = document.getElementById("candidatura-cargo");
-  var btnTrocarCandidatura = document.getElementById("btn-trocar-candidatura");
-  var seletorCandidatura = document.getElementById("seletor-candidatura");
-  var selectEstado = document.getElementById("select-estado");
-  var selectCargo = document.getElementById("select-cargo");
-  var selectNome = document.getElementById("select-nome");
-
-  if (candidaturaFotoEl) {
-    candidaturaFotoEl.addEventListener("load", function () {
-      candidaturaFotoEl.hidden = false;
-    });
-    candidaturaFotoEl.addEventListener("error", function () {
-      candidaturaFotoEl.hidden = true;
-    });
-  }
-
   // Tamanho (em pixels) da imagem final exportada. A moldura da campanha
   // deve ser um PNG quadrado transparente com esta mesma proporção 1:1.
   var TAMANHO_EXPORTACAO = 1080;
@@ -81,222 +63,14 @@
     return parseFloat(zoomSlider.value);
   }
 
-  // ---------- Candidatura selecionada (estado, cargo, pessoa) ----------
+  // ---------- Link de compartilhar no WhatsApp ----------
 
-  var CANDIDATURAS = window.CANDIDATURAS || [];
-  var ORDEM_CARGOS = window.ORDEM_CARGOS || [];
-  var candidaturaAtual = null;
-
-  function candidaturaPorSlug(slug) {
-    for (var i = 0; i < CANDIDATURAS.length; i++) {
-      if (CANDIDATURAS[i].slug === slug) return CANDIDATURAS[i];
-    }
-    return null;
-  }
-
-  function estadosDisponiveis() {
-    var vistos = {};
-    var lista = [];
-    CANDIDATURAS.forEach(function (c) {
-      var chave = c.uf || "";
-      if (!vistos[chave]) {
-        vistos[chave] = true;
-        lista.push({ uf: c.uf, estado: c.estado });
-      }
-    });
-    lista.sort(function (a, b) {
-      if (a.uf === null) return -1;
-      if (b.uf === null) return 1;
-      return a.estado.localeCompare(b.estado, "pt-BR");
-    });
-    return lista;
-  }
-
-  function cargosDisponiveis(uf) {
-    var rotulos = {};
-    CANDIDATURAS.forEach(function (c) {
-      if ((c.uf || "") === (uf || "")) {
-        rotulos[c.cargo] = c.cargoRotulo;
-      }
-    });
-    return ORDEM_CARGOS.filter(function (codigo) {
-      return rotulos[codigo];
-    }).map(function (codigo) {
-      return { cargo: codigo, cargoRotulo: rotulos[codigo] };
-    });
-  }
-
-  function candidatosDisponiveis(uf, cargo) {
-    return CANDIDATURAS.filter(function (c) {
-      return (c.uf || "") === (uf || "") && c.cargo === cargo;
-    }).sort(function (a, b) {
-      return a.nome.localeCompare(b.nome, "pt-BR");
-    });
-  }
-
-  function popularSelectEstado(ufSelecionado) {
-    selectEstado.innerHTML = "";
-    estadosDisponiveis().forEach(function (e) {
-      var opcao = document.createElement("option");
-      opcao.value = e.uf || "";
-      opcao.textContent = e.uf ? e.uf + " — " + e.estado : "Nacional";
-      selectEstado.appendChild(opcao);
-    });
-    selectEstado.value = ufSelecionado || "";
-  }
-
-  function popularSelectCargo(uf, cargoSelecionado) {
-    selectCargo.innerHTML = "";
-    var cargos = cargosDisponiveis(uf);
-    cargos.forEach(function (c) {
-      var opcao = document.createElement("option");
-      opcao.value = c.cargo;
-      opcao.textContent = c.cargoRotulo;
-      selectCargo.appendChild(opcao);
-    });
-    var existe = cargos.some(function (c) {
-      return c.cargo === cargoSelecionado;
-    });
-    selectCargo.value = existe ? cargoSelecionado : cargos.length ? cargos[0].cargo : "";
-  }
-
-  function popularSelectNome(uf, cargo, slugSelecionado) {
-    selectNome.innerHTML = "";
-    var candidatos = candidatosDisponiveis(uf, cargo);
-    candidatos.forEach(function (c) {
-      var opcao = document.createElement("option");
-      opcao.value = c.slug;
-      opcao.textContent = c.nome;
-      selectNome.appendChild(opcao);
-    });
-    var existe = candidatos.some(function (c) {
-      return c.slug === slugSelecionado;
-    });
-    selectNome.value = existe ? slugSelecionado : candidatos.length ? candidatos[0].slug : "";
-  }
-
-  function atualizarLinkWhatsapp() {
-    if (!linkWhatsapp || !candidaturaAtual) {
-      return;
-    }
+  if (linkWhatsapp) {
     var textoCompartilhar =
-      "Fiz minha foto de perfil pra " + candidaturaAtual.nome + " (UP 80) ✊ Bora fazer a sua também?\n" +
-      window.location.origin + "/" + candidaturaAtual.slug;
+      "Fiz minha foto de perfil: no segundo turno é 13 pra derrotar o fascismo! Bolsonaro nunca mais! ✊ Faça a sua também:\n" +
+      window.location.origin + "/";
     linkWhatsapp.href = "https://wa.me/?text=" + encodeURIComponent(textoCompartilhar);
   }
-
-  function slugParaUrl(slug) {
-    return "/" + slug;
-  }
-
-  function sincronizarSelects(candidatura) {
-    popularSelectEstado(candidatura.uf || "");
-    popularSelectCargo(candidatura.uf, candidatura.cargo);
-    popularSelectNome(candidatura.uf, candidatura.cargo, candidatura.slug);
-  }
-
-  function aplicarCandidatura(candidatura, opcoes) {
-    opcoes = opcoes || {};
-    candidaturaAtual = candidatura;
-
-    overlayCampanha.src = "assets/overlays/" + candidatura.slug + ".png";
-    overlayCampanha.alt = "Filtro da campanha " + candidatura.nome + " UP 80";
-
-    if (candidaturaFotoEl) {
-      candidaturaFotoEl.hidden = true;
-      candidaturaFotoEl.alt = "Foto de perfil de " + candidatura.nome;
-      candidaturaFotoEl.src = "assets/fotos/" + candidatura.slug + ".jpg";
-    }
-
-    candidaturaNomeEl.textContent = candidatura.nome;
-    candidaturaCargoEl.textContent = candidatura.uf
-      ? candidatura.cargoRotulo + " — " + candidatura.uf
-      : candidatura.cargoRotulo;
-
-    document.title = candidatura.nome + " — Filtro de perfil (UP 80)";
-
-    sincronizarSelects(candidatura);
-    atualizarLinkWhatsapp();
-
-    if (!opcoes.semAtualizarUrl) {
-      var novaUrl = slugParaUrl(candidatura.slug);
-      if (window.location.pathname !== novaUrl) {
-        window.history.pushState({ slug: candidatura.slug }, "", novaUrl);
-      }
-    }
-  }
-
-  function slugAtualDaUrl() {
-    var redirecionado = null;
-    try {
-      redirecionado = window.sessionStorage.getItem("candidaturaRedirect");
-    } catch (erro) {
-      redirecionado = null;
-    }
-    if (redirecionado) {
-      try {
-        window.sessionStorage.removeItem("candidaturaRedirect");
-      } catch (erro) {
-        /* ignora navegadores sem sessionStorage */
-      }
-      window.history.replaceState(null, "", slugParaUrl(redirecionado));
-      return redirecionado;
-    }
-    var caminho = window.location.pathname.replace(/^\/+|\/+$/g, "");
-    return caminho || null;
-  }
-
-  if (btnTrocarCandidatura && seletorCandidatura) {
-    btnTrocarCandidatura.addEventListener("click", function () {
-      var estaAberto = !seletorCandidatura.hidden;
-      seletorCandidatura.hidden = estaAberto;
-      btnTrocarCandidatura.setAttribute("aria-expanded", String(!estaAberto));
-      btnTrocarCandidatura.textContent = estaAberto ? "Trocar candidatura" : "Fechar";
-    });
-  }
-
-  selectEstado.addEventListener("change", function () {
-    var uf = selectEstado.value || null;
-    popularSelectCargo(uf);
-    var candidatos = candidatosDisponiveis(uf, selectCargo.value);
-    popularSelectNome(uf, selectCargo.value, candidatos.length ? candidatos[0].slug : "");
-    var candidatura = candidaturaPorSlug(selectNome.value);
-    if (candidatura) {
-      aplicarCandidatura(candidatura);
-    }
-  });
-
-  selectCargo.addEventListener("change", function () {
-    var uf = selectEstado.value || null;
-    popularSelectNome(uf, selectCargo.value);
-    var candidatura = candidaturaPorSlug(selectNome.value);
-    if (candidatura) {
-      aplicarCandidatura(candidatura);
-    }
-  });
-
-  selectNome.addEventListener("change", function () {
-    var candidatura = candidaturaPorSlug(selectNome.value);
-    if (candidatura) {
-      aplicarCandidatura(candidatura);
-    }
-  });
-
-  window.addEventListener("popstate", function () {
-    var caminho = window.location.pathname.replace(/^\/+|\/+$/g, "") || window.CANDIDATURA_PADRAO;
-    var candidatura = candidaturaPorSlug(caminho) || candidaturaPorSlug(window.CANDIDATURA_PADRAO);
-    aplicarCandidatura(candidatura, { semAtualizarUrl: true });
-  });
-
-  (function inicializarCandidatura() {
-    var slugInicial = slugAtualDaUrl();
-    var candidatura = (slugInicial && candidaturaPorSlug(slugInicial)) || candidaturaPorSlug(window.CANDIDATURA_PADRAO);
-    var precisaCorrigirUrl = Boolean(slugInicial) && slugInicial !== candidatura.slug;
-    aplicarCandidatura(candidatura, { semAtualizarUrl: !precisaCorrigirUrl });
-    if (precisaCorrigirUrl) {
-      window.history.replaceState({ slug: candidatura.slug }, "", slugParaUrl(candidatura.slug));
-    }
-  })();
 
   // ---------- Escolha da foto ----------
 
@@ -582,7 +356,7 @@
         var urlDownload = URL.createObjectURL(blob);
         var link = document.createElement("a");
         link.href = urlDownload;
-        link.download = "foto-perfil-" + candidaturaAtual.slug + "-up80.png";
+        link.download = "foto-perfil-vote13.png";
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

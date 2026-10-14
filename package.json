@@ -1,8 +1,8 @@
 {
-  "name": "moldura-perfil-samara-up80",
+  "name": "filtro-perfil-vote13",
   "private": true,
   "version": "1.0.0",
-  "description": "Site estático para aplicar a moldura da campanha Samara UP 80 sobre uma foto de perfil.",
+  "description": "Site estático para aplicar o filtro Vote 13 da Unidade Popular (2º turno) sobre uma foto de perfil.",
   "scripts": {
     "start": "live-server --port=5500 --entry-file=index.html"
   },
